@@ -16,6 +16,7 @@ class CreateQuestionsTable extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->text('body');
             $table->string('slug');
             $table->foreignId('user_id')->references('id')->on('users')
                 ->onDelete('cascade');
