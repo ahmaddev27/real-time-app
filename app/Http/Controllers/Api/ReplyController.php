@@ -21,7 +21,7 @@ class ReplyController extends Controller
         if ($question) {
             $questionReplies=$question->replies;
 
-            if ($questionReplies==[]){
+            if ($questionReplies!=[]){
                 return $this->apiRespose(ReplayResource::collection($questionReplies),'ok',201);
             }
             return $this->apiRespose(null,'Not Found Replies ',401);
