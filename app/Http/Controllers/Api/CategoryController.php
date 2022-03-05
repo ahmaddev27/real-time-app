@@ -1,85 +1,97 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
+
+    use ApiResponseTrait;
+
+    public function index(){
+
+        return $this->apiRespose(CategoryResource::collection(Category::latest()->get()),'ok',201);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
+
     public function store(Request $request)
     {
-        //
+        $validator=Validator::make($request->all(),[
+            'name'=>'required|max:255',
+            'slug'=>'required',
+
+        ]);
+
+        if ($validator->fails()){
+            return $this->apiRespose(null,$validator->errors(),404);
+        }
+
+        $category= Category::create($request->all());
+        if ($category) {
+            return $this->apiRespose(new CategoryResource($category),'Data Created',201);
+        }
+        return $this->apiRespose(null,'Data Not saved',404);
+
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Category $category)
+
+
+    public function show($slug)
     {
-        //
+        $category = Category::where('slug', $slug)->first();
+        if ($category) {
+            return $this->apiRespose(new CategoryResource($category),'ok',200);
+        }
+        return $this->apiRespose(null,'Not Found Data',401);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Category $category)
+
+
+
+    public function update(Request $request,$slug)
     {
-        //
+        $validator=Validator::make($request->all(),[
+            'name'=>'required|max:255',
+            'slug'=>'required',
+
+        ]);
+
+
+        if ($validator->fails()){
+            return $this->apiRespose(null,$validator->errors(),404);
+
+        }else{
+            $category = Category::where('slug', $slug)->first();
+            if ($category) {
+                $category->update($request->all());
+
+                return $this->apiRespose(new CategoryResource($category),'Data Updated',200);
+            }
+            return $this->apiRespose(null,'Not Found Data',401);
+
+        }
+
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Category $category)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Category $category)
+
+    public function destroy($slug)
     {
-        //
+        $category = Category::where('slug', $slug)->first();
+
+        if ($category) {
+            $category->delete();
+            return $this->apiRespose(null,'Data Deleted',200);
+        }else{
+            return $this->apiRespose(null,'Not Found Data',404);
+        }
     }
 }

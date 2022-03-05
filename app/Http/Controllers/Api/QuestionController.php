@@ -70,7 +70,7 @@ class QuestionController extends Controller{
             if ($question) {
                 $question->update($request->all());
 
-                return $this->apiRespose(new QuestionResource($question),'ok',200);
+                return $this->apiRespose(new QuestionResource($question),'Data Updated',200);
             }
             return $this->apiRespose(null,'Not Found Data',401);
 
