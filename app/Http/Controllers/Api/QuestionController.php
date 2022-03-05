@@ -85,9 +85,9 @@ class QuestionController extends Controller{
 
         if ($question) {
             $question->delete();
-            return $this->apiRespose(null,'Data Deleted',200);
-        }else{
-            return $this->apiRespose(null,'Not Found Data',404);
+            return $this->apiRespose(null, 'Data Deleted', 200);
         }
+
+        return $this->apiRespose(null,'Not Found Data',404);
     }
 }

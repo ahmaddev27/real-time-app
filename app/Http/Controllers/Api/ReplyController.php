@@ -3,84 +3,122 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ReplayResource;
+use App\Models\Question;
 use App\Models\Reply;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Validator;
 
 class ReplyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    use ApiResponseTrait;
+
+
+    public function index($question)
     {
-        //
+        $question=Question::where('slug',$question)->first();
+        if ($question) {
+            $questionReplies=$question->replies;
+
+            if ($questionReplies==[]){
+                return $this->apiRespose(ReplayResource::collection($questionReplies),'ok',201);
+            }
+            return $this->apiRespose(null,'Not Found Replies ',401);
+        }
+
+        return $this->apiRespose(null,'Not Found Question ',401);
+
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+
+    public function store($question,Request $request)
     {
-        //
+        $question=Question::where('slug',$question)->first();
+        if ($question){
+
+            $validator=Validator::make($request->all(),[
+                'body'=>'required',
+                'user_id'=>'required',
+            ]);
+
+
+            if ($validator->fails()){
+                return $this->apiRespose(null,$validator->errors(),404);
+            }
+
+            $reply=Reply::create([
+                'body'=>$request->body,
+                'user_id'=>$request->user_id,
+                'question_id'=>$question->id
+            ]);
+
+            if ($reply) {
+                return $this->apiRespose(new ReplayResource($reply),'Data Created',201);
+            }
+            return $this->apiRespose(null,'Data Not saved',404);
+        }
+        return $this->apiRespose(null,'Not Found Question ',401);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+
+    public function show($question, $reply)
     {
-        //
+        $question=Question::where('slug',$question)->first();
+        $reply=Reply::find($reply);
+
+        if ($reply && $question) {
+            if ($reply->question_id != $question->id){
+                return $this->apiRespose(null,'Wrong given Data',200);
+            }
+            return $this->apiRespose(new ReplayResource($reply), 'ok', 200);
+        }
+        return $this->apiRespose(null,'Not Found Data ',401);
+        }
+
+
+    public function update($question,$reply,Request $request){
+
+        $question=Question::where('slug',$question)->first();
+        $reply=Reply::find($reply);
+
+        if ($question && $reply){
+            $validator=Validator::make($request->all(),[
+                'body'=>'required',
+                'user_id'=>'required',
+            ]);
+
+            if ($validator->fails()){
+                return $this->apiRespose(null,$validator->errors(),404);
+            }
+
+            if ($reply->question_id != $question->id){
+                $reply->update([
+                    'body'=>$request->body,
+                    'user_id'=>$request->user_id,
+                    'question_id'=>$question->id
+                ]);
+                return $this->apiRespose(new ReplayResource($reply),'Data Updated',201);
+            }
+            return $this->apiRespose(null,'wrong given data',404);
+        }
+        return $this->apiRespose(null,'Not Found data ',401);
+
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Reply $reply)
-    {
-        //
+    public function destroy($question,$reply){
+        $reply=Reply::find($reply);
+        $question=Question::where('slug',$question)->first();
+
+        if ($reply && $question) {
+            if ($reply->question_id==$question->id){
+                $reply->delete();
+                return $this->apiRespose(null,'Data Deleted',200);
+            }
+            return $this->apiRespose(null,'Wrong given data',404);
+        }
+        return $this->apiRespose(null,'Not Found Data',404);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Reply $reply)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Reply $reply)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Reply $reply)
-    {
-        //
-    }
 }
