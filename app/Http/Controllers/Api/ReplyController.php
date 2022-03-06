@@ -14,6 +14,11 @@ class ReplyController extends Controller
 {
     use ApiResponseTrait;
 
+    public function __construct() {
+        $this->middleware('jwt', ['except' => ['index', 'show']]);
+    }
+
+
 
     public function index($question)
     {
@@ -36,10 +41,8 @@ class ReplyController extends Controller
     {
         $question=Question::where('slug',$question)->first();
         if ($question){
-
             $validator=Validator::make($request->all(),[
                 'body'=>'required',
-                'user_id'=>'required',
             ]);
 
 
@@ -49,7 +52,7 @@ class ReplyController extends Controller
 
             $reply=Reply::create([
                 'body'=>$request->body,
-                'user_id'=>$request->user_id,
+                'user_id'=>auth()->id(),
                 'question_id'=>$question->id
             ]);
 
@@ -79,23 +82,30 @@ class ReplyController extends Controller
 
     public function update($question,$reply,Request $request){
 
+
         $question=Question::where('slug',$question)->first();
         $reply=Reply::find($reply);
 
         if ($question && $reply){
+
+            if ($reply->user_id !=auth()->id()){
+                return $this->apiRespose(null,'Token is Invalid',401);
+            }
+
             $validator=Validator::make($request->all(),[
                 'body'=>'required',
-                'user_id'=>'required',
             ]);
+
 
             if ($validator->fails()){
                 return $this->apiRespose(null,$validator->errors(),404);
             }
 
-            if ($reply->question_id != $question->id){
+            if ($reply->question_id == $question->id){
+
                 $reply->update([
                     'body'=>$request->body,
-                    'user_id'=>$request->user_id,
+//                    'user_id'=>auth()->id(),
                     'question_id'=>$question->id
                 ]);
                 return $this->apiRespose(new ReplayResource($reply),'Data Updated',201);
@@ -111,6 +121,11 @@ class ReplyController extends Controller
         $question=Question::where('slug',$question)->first();
 
         if ($reply && $question) {
+
+            if ($reply->user_id !=auth()->id()){
+                return $this->apiRespose(null,'Token is Invalid',401);
+            }
+
             if ($reply->question_id==$question->id){
                 $reply->delete();
                 return $this->apiRespose(null,'Data Deleted',200);

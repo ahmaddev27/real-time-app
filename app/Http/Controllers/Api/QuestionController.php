@@ -12,6 +12,10 @@ class QuestionController extends Controller{
 
     use ApiResponseTrait;
 
+    public function __construct() {
+        $this->middleware('jwt', ['except' => ['index', 'show']]);
+    }
+
     public function index(){
 
         return $this->apiRespose(QuestionResource::collection(Question::latest()->get()),'ok',201);
@@ -25,14 +29,15 @@ class QuestionController extends Controller{
             'body'=>'required',
             'slug'=>'required',
             'category_id'=>'required',
-            'user_id'=>'required',
+
         ]);
 
         if ($validator->fails()){
             return $this->apiRespose(null,$validator->errors(),404);
         }
 
-        $question= Question::create($request->all());
+
+        $question= Question::create(['user_id'=>auth()->id()]+$request->all());
         if ($question) {
             return $this->apiRespose(new QuestionResource($question),'Data Created',201);
         }
@@ -58,7 +63,6 @@ class QuestionController extends Controller{
             'body'=>'required',
             'slug'=>'required',
             'category_id'=>'required',
-            'user_id'=>'required',
         ]);
 
 
@@ -68,12 +72,16 @@ class QuestionController extends Controller{
         }else{
             $question = Question::where('slug', $slug)->first();
             if ($question) {
-                $question->update($request->all());
+
+                if ($question->user_id !=auth()->id()){
+                    return $this->apiRespose(null,'Token is Invalid',401);
+
+                }
+                $question->update(['user_id'=>auth()->id()]+$request->all());
 
                 return $this->apiRespose(new QuestionResource($question),'Data Updated',200);
             }
             return $this->apiRespose(null,'Not Found Data',401);
-
         }
 
     }
@@ -84,10 +92,12 @@ class QuestionController extends Controller{
         $question = Question::where('slug', $slug)->first();
 
         if ($question) {
+            if ($question->user_id !=auth()->id()){
+                return $this->apiRespose(null,'Token is Invalid',401);
+            }
             $question->delete();
             return $this->apiRespose(null, 'Data Deleted', 200);
         }
-
         return $this->apiRespose(null,'Not Found Data',404);
     }
 }

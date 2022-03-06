@@ -10,11 +10,16 @@ class LikeController extends Controller{
 
     use ApiResponseTrait;
 
-    public function like($reply,$user_id)
+    public function __construct() {
+        $this->middleware('jwt');
+    }
+
+
+    public function like($reply)
     {
         $reply= Reply::find($reply);
         if ($reply) {
-            $reply->likes()->create(['user_id'=>$user_id]);
+            $reply->likes()->create(['user_id'=>auth()->id()]);
             return $this->apiRespose(new ReplayResource($reply),'Reply Liked',201);
 
         }
@@ -22,12 +27,12 @@ class LikeController extends Controller{
 
     }
 
-    public function unlike($reply,$user_id)
+    public function unlike($reply)
     {
         $reply=Reply::find($reply);
 
         if ($reply) {
-            $reply->likes()->where('user_id',$user_id)->first()->delete();
+            $reply->likes()->where('user_id',auth()->id())->first()->delete();
             return $this->apiRespose(new ReplayResource($reply),'Reply UnLiked',201);
         }
 
