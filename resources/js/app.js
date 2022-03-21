@@ -7,7 +7,10 @@
 require('./bootstrap');
 
 window.Vue = require('vue').default;
+import Vue from 'vue'
 import Vuetify from 'vuetify'
+Vue.use(Vuetify);
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -22,6 +25,7 @@ import Vuetify from 'vuetify'
 Vue.component('home-component', require('./components/Home.vue').default);
 Vue.component('toolbar-component', require('./components/Toolbar.vue').default);
 Vue.component('footer-component', require('./components/Footer.vue').default);
+Vue.component('login-component', require('./components/auth/login.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -29,9 +33,16 @@ Vue.component('footer-component', require('./components/Footer.vue').default);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.use(Vuetify);
+import router from './Router'
+import User from './Helpers/User'
+window.User=User
+console.log(User.id())
+
+
 const app = new Vue({
     el: '#app',
     vuetify: new Vuetify(),
+    router,
+
 });
 

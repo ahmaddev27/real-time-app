@@ -5,7 +5,7 @@
         <v-spacer></v-spacer>
         <v-toolbar-items class="hidden-sm-and-down">
         <v-btn text>
-           mdi-magnify
+            <router-link to="/login">  Login</router-link>
         </v-btn>
             <v-btn text>
            mdi-magnify
@@ -14,7 +14,7 @@
            mdi-magnify
         </v-btn>
             <v-btn text>
-           mdi-magnify
+       ssssdf
         </v-btn>
         </v-toolbar-items>
     </v-toolbar>
