@@ -16,8 +16,8 @@
 <script>
 import Toolbar from "./Toolbar";
 import Footer from "./Footer";
-import login from "./auth/login";
+
 export default {
-    components: {Toolbar,Footer,login}
+    components: {Toolbar,Footer}
 }
 </script>

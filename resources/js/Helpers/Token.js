@@ -1,8 +1,8 @@
 class Token{
     isValid(token){
-        const payload = this.payload(token);
-        if(payload){
-            return  payload.iss =="https://realtimeapp.test/api/login" ? true : false;
+        const payload = this.payload(token)
+        if (payload) {
+            return payload.iss = "http://inventory.test/api/login" || "http://inventory.test/api/signup" ? true : false
         }
         return false
     }

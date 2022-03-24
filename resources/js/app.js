@@ -26,6 +26,9 @@ Vue.component('home-component', require('./components/Home.vue').default);
 Vue.component('toolbar-component', require('./components/Toolbar.vue').default);
 Vue.component('footer-component', require('./components/Footer.vue').default);
 Vue.component('login-component', require('./components/auth/login.vue').default);
+Vue.component('singup-component', require('./components/auth/signup.vue').default);
+Vue.component('logout-component', require('./components/auth/logout.vue').default);
+Vue.component('forum-component', require('./components/Forum.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -36,9 +39,8 @@ Vue.component('login-component', require('./components/auth/login.vue').default)
 import router from './Router'
 import User from './Helpers/User'
 window.User=User
-console.log(User.id())
 
-
+console.log(User.loggedIn())
 const app = new Vue({
     el: '#app',
     vuetify: new Vuetify(),

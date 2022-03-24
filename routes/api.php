@@ -13,7 +13,7 @@ Route::delete('{reply}/unlike',[\App\Http\Controllers\Api\LikeController::class,
 
 Route::group(['middleware' => 'api'], function () {
     Route::post('login',[\App\Http\Controllers\Api\AuthController::class,'login'])->name('login');
-    Route::post('register',[\App\Http\Controllers\Api\AuthController::class,'register']);
+    Route::post('signup',[\App\Http\Controllers\Api\AuthController::class,'register']);
     Route::post('logout',  [\App\Http\Controllers\Api\AuthController::class,'logout']);
     Route::post('refresh',  [\App\Http\Controllers\Api\AuthController::class,'refresh']);
     Route::post('profile', [\App\Http\Controllers\Api\AuthController::class,'userProfile']);
